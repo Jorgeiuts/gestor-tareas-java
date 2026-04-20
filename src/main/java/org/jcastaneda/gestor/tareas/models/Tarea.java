@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -38,12 +39,12 @@ public class Tarea {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EstadoTarea estado = EstadoTarea.PENDIENTE;
+    @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'PENDIENTE'")
+    private EstadoTarea estado;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Prioridad prioridad = Prioridad.MEDIA;
+    @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'MEDIA'")
+    private Prioridad prioridad;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
@@ -61,6 +62,19 @@ public class Tarea {
         }
         if(estado != EstadoTarea.COMPLETADA){
             fechaCompletacion = null;
+        }
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.fechaCreacion == null) {
+            this.fechaCreacion = LocalDateTime.now();
+        }
+        if (this.estado == null) {
+            this.estado = EstadoTarea.PENDIENTE;
+        }
+        if (this.prioridad == null) {
+            this.prioridad = Prioridad.MEDIA;
         }
     }
 }
